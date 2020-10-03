@@ -4,14 +4,16 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "algorithm/lzybasic.h"
+#include "../algorithm/lzybasic.h"
 
 using namespace std;
 
 #define MaxSize 50
+// 定义标准类型
 typedef int ElemType;
+const ElemType NOTFOUND=-1;
 
-// 构造数据结构 `linearList`
+// 构造数据结构 `linearList` !!!小写开头
 typedef struct{
     int length;
     ElemType elem[MaxSize];
@@ -27,51 +29,47 @@ class LinearList{
         // 调试模式：设为true以开启，调用方法时输出流程信息
         const bool DEBUG = false; // 定义类内的常量而不是宏以提高内聚性
         // const int MaxSize=50;
-        void initList(){
+        LinearList * initList(){
             this->L = (linearList *) malloc(sizeof(linearList)); // 同 `new linearList;` 运算符 `new` 返回当前new出空间的结构的指针类型
             this->L->length = 0;
+            return this;
         }
       
     protected:
         linearList * L;
     public:
         // 构造函数
+        // LinearList(){
+        //     if(DEBUG) cout<<"调用了构造函数"<<endl;
+        //     this->initList(); // 自动初始化
+        // }
+        // LinearList(ElemType a[]=NULL, int n=0){
+        //     if(DEBUG) cout<<"调用了构造函数"<<endl;
+        //     this->initList(); // 自动初始化
+        //     if(a!=NULL){
+        //         this->createList(a, n);
+        //     }
+        // }
         LinearList(linearList * L=NULL, ElemType a[]=NULL, int n=0){
-            this->initList(); // 自动初始化
-            cout<<"调用了构造函数"<<endl;
+            if(DEBUG) cout<<"调用了构造函数"<<endl;
             if(L!=NULL)
                 this->L = L;
+            else this->initList(); // 自动初始化
             if(a!=NULL){
-                // cout<<"调用了数组初始化"<<endl;
-                // for(int i=0;i<n;i++){
-                //     this->L->elem[i]=a[i];
-                //     cout<<a[i]<<endl;
-                // }
-                // this->createList(a);
-                this->createList(a, 10);
+                this->createList(a, n);
             }
         }
         // 析构函数
         ~LinearList(){this->destroyList();}
-        void createList( ElemType data[]){
-            int i=0,k=0;
-            if(sizeof(data)==0) return;
-            cout<<"总数组长度是:"<<sizeof(data)<<"第二个是："<<sizeof(data[0])<<endl;
-            while (i < (sizeof(data)/sizeof(data[0])) )
-            {
-                this->L->elem[k]=data[i];
-                k++;i++;
-            }
-            this->L->length=k;
-        }
-        void createList( ElemType data[], int n){
+        LinearList * createList( ElemType data[], int length){
             int i=0;
-            while (i<n)
+            while (i<length)
             {
                 this->L->elem[i]=data[i];
                 i++;
             }
             this->L->length=i;
+            return this;
         }
         void destroyList(){
             free(this->L);
@@ -82,42 +80,70 @@ class LinearList{
         int listLength(){
             return this->L->length;
         }
-        void printList(){
+        LinearList * printList(bool inlinePrint=false){
             for(int i=0;i<this->L->length;++i){
-                cout<<"第"<<i+1<<"个元素是："<<this->L->elem[i]<<endl;
+                if(inlinePrint) cout<<this->L->elem[i]<<"  ";
+                else cout<<endl<<"第"<<i+1<<"个元素是："<<this->L->elem[i];
             }
+            cout<<endl;
+            return this;
         }
-        bool getElem(int index, ElemType &el){
-            if(index<0 || index>=this->L->length) return false;
-            return el=this->L->elem[index] || true;
+        LinearList * getElem(int index, ElemType &el){
+            if(index<0) index+=this->L->length;
+            if(index<0 || index>=this->L->length) return NULL;
+            el=this->L->elem[index];
+            return this;
         }
-        int locateElem( ElemType el){
+        ElemType getElem(int index){
+            if(index<0) index+=this->L->length;
+            if(index<0 || index>=this->L->length) return NOTFOUND;
+            return this->L->elem[index];
+        }
+        int locateElem(const ElemType el){
             int i;
             for(i=0;i<this->L->length && this->L->elem[i]!=el;++i){};
             if(i >= this->L->length) return -1; // 未找到，执行了最后一次循环 使i==length
             else return i;
         }
-        bool insertElem( int index, ElemType el){
+        // 同locateElem，从左查找的方法
+        int indexOf(const ElemType el){
+            int i;
+            for(i=0;i<this->L->length && this->L->elem[i]!=el;++i){};
+            if(i >= this->L->length) return -1; // 未找到，执行了最后一次循环 使i==length
+            else return i;
+        }
+        // 类似indexOf，从右边开始查找
+        int lastIndexOf(ElemType el){
+            int i;
+            for(i=this->L->length - 1; i >= 0 && this->L->elem[i]!=el;--i){};
+            return i;
+        }
+        LinearList * insertElem(int index, ElemType el){
             int temp;
-            if(index<0 || index > this->L->length || this->L->length==MaxSize) return false; // 错误的引索、线性表已满的情况直接返回false
+            if(index<0 || index > this->L->length || this->L->length==MaxSize) return NULL; // 错误的引索、线性表已满的情况直接返回false
             for(temp = this->L->length; temp > index-1; temp--) this->L->elem[temp]=this->L->elem[temp-1]; // 将 index 位置之后的元素后一位
             this->L->elem[index] = el;
-            // cout<<"插入成功"<<endl;
-            return !!(this->L->length++);
-            // return true;
+            this->L->length++;
+            if(DEBUG) cout<<endl<<"Executed: 在"<<index<<"位置插入元素 "<<el<<endl;
+            // return !!(this->L->length++);
+            return this;
         }
-        bool deleteElem( int index){
+        LinearList * deleteElem(int index){
+            if(index<0) index+=this->L->length;
             int temp;
-            if(index<0 || index >= this->L->length) return false;
-            for(temp=index;temp < this->L->length;temp++) this->L->elem[temp] = this->L->elem[temp+1];
+            if(index<0 || index >= this->L->length) return NULL;
+            for(temp=index;temp < this->L->length-1;temp++) this->L->elem[temp] = this->L->elem[temp+1];
+            if(DEBUG) cout<<endl<<"Executed: 在"<<index<<"位置删除元素 "<<this->L->elem[index]<<endl;
             this->L->length--;
-            return true;
+            return this;
         }
-        bool deleteElem( int index, ElemType &el){
+        bool deleteElem(int index, ElemType &el){
+            if(index<0) index+=this->L->length;
             int temp;
             if(index<0 || index >= this->L->length) return false;
             el=this->L->elem[index];
-            for(temp=index;temp<this->L->length;temp++) this->L->elem[temp] = this->L->elem[temp+1];
+            for(temp=index;temp<this->L->length-1;temp++) this->L->elem[temp] = this->L->elem[temp+1];
+            if(DEBUG) cout<<endl<<"Executed: 在"<<index<<"位置删除元素 "<<this->L->elem[index]<<endl;
             this->L->length--;
             return true;
         }
@@ -126,10 +152,10 @@ class LinearList{
          *   - bool reverse(); 逆序表中元素
          *   - bool sort(); 排序表中的元素，暂只支持 ElemType 为 int 或 char 类型
          **/
-        bool reverse(){
+        LinearList * reverse(){
             if(this->L->length <= 0){
-                if(DEBUG) cout<<"reverse操作终止：顺序表为空！";
-                return false;
+                if(DEBUG) cout<<endl<<"reverse操作终止：顺序表为空！";
+                return NULL;
             }
             ElemType temp;
             for(int i=0;i<(int) this->L->length/2;i++){
@@ -139,8 +165,8 @@ class LinearList{
                 this->L->elem[this->L->length - i - 1] = temp;
                 // cout<<endl<<"第"<<i<<"次交换："<<endl;
             }
-            if(DEBUG) cout<<"Executed: reverse()"<<endl;
-            return true;
+            if(DEBUG) cout<<endl<<"Executed: reverse"<<endl;
+            return this;
         }
 
         bool sort(){
@@ -152,7 +178,7 @@ class LinearList{
             bubblingSort(this->L->elem, this->L->length);
         }
         // 没什么实际作用 P40页教材例题
-        bool partition(){
+        LinearList * partition(){
             int i=0,j=this->L->length - 1;
             ElemType pivot=this->L->elem[0];
             while (i<j)
@@ -162,7 +188,11 @@ class LinearList{
                 if(i<j) swap(this->L->elem[i], this->L->elem[j]);
             }
             swap(this->L->elem[0], this->L->elem[i]);
-        }
+            return this;
+        };
+        // 练习中需要使用的到的函数都放在这里声明，到类外面去实现 ::
+        void deleteSame();
+        void ordInsert(const ElemType e);
 };
 
 #endif

@@ -74,8 +74,24 @@ char swap(char &a, char &b){
 
 /**
  * 函数模板，泛型编程，提高效率
- * 暂时还有问题	
+ * 部分暂时还有问题	
 */
+// template <size_t N>
+// int arrayLength(int *(&array)[N]) // 利用模板传递参数 array是数组的引用
+// {
+//     int res = 0L;
+//     for (size_t i = 0;i < N;i ++) {
+//         res += array[i];
+//     }
+//     return res;
+// }
+
+// template <size_t N>
+// int arrayLength(ElemType (&array)[N]) // 利用模板传递参数 array是数组的引用
+// {
+//     return N;
+// }
+
 template <typename T>
 inline T const& Max (T const& a, T const& b) 
 { 
@@ -84,7 +100,7 @@ inline T const& Max (T const& a, T const& b)
 template <typename T>
 inline T const& lzytoString(T const& str, bool newline=false){
 	if(str==NULL)
-		cout<<'NULL';
+		cout<<"NULL";
 	else if(str==false)
 		cout<<"false";
 	else if(str==true)

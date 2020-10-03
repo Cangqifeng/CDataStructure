@@ -93,6 +93,33 @@ class LinkList{
             else return i;
         }
         // 支持链式调用
+        // 从1号位置陆续插入数据
+        LinkList * createList(ElemType a[], int n){
+            int i=0;
+            linkNode *p=this->L, *newcomer;
+            // while(i<sizeof(a)/sizeof(a[0]) && p!=NULL){ // sizeof是在编译阶段处理的关键词，会被替换常量，在定义函数中`sizeof(a)/sizeof(a[0])`, 传入参数`a`只是数组地址了，编译时无法获取信息
+            while(i<n && p!=NULL){
+                newcomer = (linkNode *)malloc(sizeof(linkNode));
+                newcomer->data=a[i]; // 保存数据
+                newcomer->next=p->next; // 链接后链
+                p->next = newcomer; // 更改前链
+                p=p->next;
+                i++;
+            }
+            return this;
+        }
+        // LinkList * createList(ElemType a[]){
+        //     int i=0;
+        //     linkNode *p=this->L->next;
+        //     cout<<arrayLength(a);
+        //     // while(i<sizeof(a)/sizeof(a[0]) && p!=NULL){ // sizeof是在编译阶段处理的关键词，会被替换常量，在定义函数中`sizeof(a)/sizeof(a[0])`, 传入参数`a`只是数组地址了，编译时无法获取信息
+        //     while(i<arrayLength(a) && p!=NULL){
+        //         p->data=a[i];
+        //         p=p->next;
+        //         i++;
+        //     }
+        //     return this;
+        // }
         LinkList * printList(){
             linkNode *p=this->L->next;int i=0;
             while (p!=NULL)
@@ -121,6 +148,8 @@ class LinkList{
             p->next = newcomer; // 更改前链
             return this;
         }
+
+        LinkList * slice(int start, int end){}
 };
 
 #endif
