@@ -20,7 +20,7 @@ typedef int ElemType;
 // 需要文件中include后声明以下函数
 /**
  * 线性链表操作函数
- * 快速说明手册
+ * 快速操作 说明手册
 
 void initList(linearList * &L); // 初始化一个空的线性表
 void createList(linearList * &L, ElemType data[], int n) // 自动确定长度的初始化方法
@@ -59,7 +59,7 @@ int locateElem(); // 顺序查找第一个线性表数据中第一个和 el 相�
 typedef struct
 {
     int length;
-    ElemType elem[MaxSize];
+    ElemType data[MaxSize];
 } linearList;
 
 // linearList L;
@@ -74,7 +74,7 @@ void createList(linearList * &L, ElemType data[], int n){
     L=(linearList *) malloc(sizeof(linearList));
     while (i<n)
     {
-        L->elem[i]=data[i];
+        L->data[i]=data[i];
         i++;
     }
     L->length=i;
@@ -88,26 +88,28 @@ bool listEmpty(linearList * L){
 int listLength(linearList * L){
     return L->length;
 }
-void printList(linearList * L){
+void printList(linearList * L, bool inlinePrint=false){
     for(int i=0;i<L->length;++i){
-        cout<<"第"<<i+1<<"个元素是："<<L->elem[i]<<endl;
+        if(inlinePrint) cout<<L->data[i]<<"  ";
+        else cout<<endl<<"第"<<i+1<<"个元素是："<<L->data[i];
     }
+    cout<<endl;
 }
 bool getElem(linearList * L, int index, ElemType &el){
     if(index<0 || index>=L->length) return false;
-    return el=L->elem[index] || true;
+    return el=L->data[index] || true;
 }
 int locateElem(linearList * &L, ElemType el){
     int i;
-    for(i=0;i<L->length && L->elem[i]!=el;++i){};
+    for(i=0;i<L->length && L->data[i]!=el;++i){};
     if(i >= L->length) return -1; // 未找到，执行了最后一次循环 使i==length
     else return i;
 }
 bool insertElem(linearList * &L, int index, ElemType el){
     int temp;
     if(index<0 || index > L->length || L->length==MaxSize) return false; // 错误的引索、线性表已满的情况直接返回false
-    for(temp = L->length; temp > index-1; temp--) L->elem[temp]=L->elem[temp-1]; // 将 index 位置之后的元素后一位
-    L->elem[index] = el;
+    for(temp = L->length; temp > index-1; temp--) L->data[temp]=L->data[temp-1]; // 将 index 位置之后的元素后一位
+    L->data[index] = el;
     // cout<<"插入成功"<<endl;
     return !!(L->length++);
     // return true;
@@ -115,15 +117,15 @@ bool insertElem(linearList * &L, int index, ElemType el){
 bool deleteElem(linearList * &L, int index){
     int temp;
     if(index<0 || index >= L->length) return false;
-    for(temp=index;temp < L->length;temp++) L->elem[temp] = L->elem[temp+1];
+    for(temp=index;temp < L->length;temp++) L->data[temp] = L->data[temp+1];
     L->length--;
     return true;
 }
 bool deleteElem(linearList * &L, int index, ElemType &el){
     int temp;
     if(index<0 || index >= L->length) return false;
-    el=L->elem[index];
-    for(temp=index;temp<L->length;temp++) L->elem[temp] = L->elem[temp+1];
+    el=L->data[index];
+    for(temp=index;temp<L->length;temp++) L->data[temp] = L->data[temp+1];
     L->length--;
     return true;
 }
