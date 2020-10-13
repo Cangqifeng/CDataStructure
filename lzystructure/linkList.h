@@ -128,7 +128,7 @@ bool insertElem(linkNode *&L, int index,const ElemType e){
     }
 }
 
-bool deletElem(linkNode *&L, int index){
+bool deleteElem(linkNode *&L, int index){
     int i = 0;
     // 允许负引索
     if(index<0) index+=listLength(L);

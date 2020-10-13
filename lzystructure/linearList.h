@@ -9,6 +9,7 @@ using namespace std;
 // #include "memory.h"
 // 暂时假装定义要存储的数据类型，在main中去实现 需要重新定义比较判断模块，暂未整合，只支持int和char类型
 typedef int ElemType;
+const bool DEBUG = true;
 
 /**
  * 线性表——顺序存储结构
@@ -69,7 +70,7 @@ void initList(linearList * &L){
     L->length = 0;
 }
 // 替代 initList 的初始化
-void createList(linearList * &L, ElemType data[], int n){
+bool createList(linearList * &L, ElemType data[], int n){
     int i=0;
     L=(linearList *) malloc(sizeof(linearList));
     while (i<n)
@@ -78,6 +79,7 @@ void createList(linearList * &L, ElemType data[], int n){
         i++;
     }
     L->length=i;
+    return true;
 }
 void destroyList(linearList * &L){
     free(L);
@@ -105,29 +107,62 @@ int locateElem(linearList * &L, ElemType el){
     if(i >= L->length) return -1; // 未找到，执行了最后一次循环 使i==length
     else return i;
 }
+// 插入元素，允许负索引（最后一个为-1），从0开始计数
 bool insertElem(linearList * &L, int index, ElemType el){
+    if(index<0) index+=L->length;
     int temp;
-    if(index<0 || index > L->length || L->length==MaxSize) return false; // 错误的引索、线性表已满的情况直接返回false
-    for(temp = L->length; temp > index-1; temp--) L->data[temp]=L->data[temp-1]; // 将 index 位置之后的元素后一位
+    if(index<0 || index >= L->length || L->length==MaxSize) return false;
+    for(temp = L->length; temp > index; temp--) L->data[temp]=L->data[temp-1]; // 将 index 位置之后的元素后一位
     L->data[index] = el;
     // cout<<"插入成功"<<endl;
     return !!(L->length++);
     // return true;
 }
+// 删除元素，允许负引索
 bool deleteElem(linearList * &L, int index){
+    if(index<0) index+=L->length;
     int temp;
     if(index<0 || index >= L->length) return false;
-    for(temp=index;temp < L->length;temp++) L->data[temp] = L->data[temp+1];
+    for(temp=index;temp <= L->length;temp++) L->data[temp] = L->data[temp+1];
     L->length--;
     return true;
 }
+// 重载，增加一个输出参数
 bool deleteElem(linearList * &L, int index, ElemType &el){
     int temp;
     if(index<0 || index >= L->length) return false;
     el=L->data[index];
-    for(temp=index;temp<L->length;temp++) L->data[temp] = L->data[temp+1];
+    for(temp=index;temp<L->length;temp++) L->data[temp] = L->data[temp+1]; // 循环左移动
     L->length--;
     return true;
+}
+// 同locateElem，从左查找的方法
+int indexOf(linearList *L, const ElemType el){
+    int i;
+    for(i=0;i<L->length && L->data[i]!=el;++i){};
+    if(i >= L->length) return -1; // 未找到，执行了最后一次循环 使i==length
+    else return i;
+}
+// 类似indexOf，从右边开始查找
+int lastIndexOf(linearList *L, ElemType el){
+    int i;
+    for(i=L->length - 1; i >= 0 && L->data[i]!=el;--i){};
+    return i;
+}
+bool slice(linearList *&L, int start, int end){
+    if(start<0) start+=L->length; if(end<0) end+=L->length;
+    if(start>end || end > L->length || start<0) return false;
+    int temp, gap=end-start;
+    for(temp=start;temp<end;temp++){ L->data[temp] = L->data[temp+gap];
+    if(DEBUG) cout<<endl<<"Executed: 在"<<temp<<"位置删除元素 "<<L->data[temp]<<endl;}
+    L->length -= gap;
+    return true;
+}
+// 逆转线性表
+bool reverse(linearList * &L){
+    for(int i=0;i<(int)L->length/2;i++){
+        swap(L->data[i],L->data[L->length-i-1]);
+    }
 }
 
 #endif
